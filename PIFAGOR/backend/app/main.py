@@ -7,7 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.api.v1.router import api_router
 from app.api.v1.endpoints import admin
+from app.db.session import engine, Base
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 async def _daily_email_task():
@@ -23,6 +25,8 @@ async def _daily_email_task():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     task = asyncio.create_task(_daily_email_task())
     yield
     task.cancel()
