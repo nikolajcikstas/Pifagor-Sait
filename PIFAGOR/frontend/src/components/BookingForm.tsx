@@ -3,7 +3,7 @@ import { submitLeadRequest } from "../api/public";
 import type { ApiSubject } from "../api/types";
 import { findSubjectId } from "../utils/tutors";
 import { filterAllowedSubjects, getSubjectOptionNames } from "../utils/subjects";
-import { formatPhone, isPhoneValid } from "../utils/phone";
+import { PHONE_PREFIX, formatPhone, isPhoneValid } from "../utils/phone";
 import { SuccessPopup } from "./SuccessPopup";
 
 interface BookingFormProps {
@@ -24,7 +24,7 @@ export function BookingForm({
   submitLabel = "Записаться",
 }: BookingFormProps) {
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("+375");
+  const [phone, setPhone] = useState(PHONE_PREFIX);
   const [subject, setSubject] = useState(defaultSubject);
   const [isOpen, setIsOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -43,7 +43,7 @@ export function BookingForm({
     [allowedSubjects],
   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFeedback(null);
 
@@ -57,26 +57,22 @@ export function BookingForm({
       return;
     }
 
-    setSubmitting(true);
-    try {
-      await submitLeadRequest({
-        name: name.trim(),
-        phone: phone.trim(),
-        subject_id: allowedSubjects ? findSubjectId(allowedSubjects, subject) : undefined,
-        message: message ?? "Заявка ученика",
-      });
-      setShowSuccess(true);
-      setName("");
-      setPhone("+375");
-      setSubject(defaultSubject);
-    } catch (err) {
-      setFeedback({
-        type: "error",
-        text: err instanceof Error ? err.message : "Не удалось отправить заявку",
-      });
-    } finally {
-      setSubmitting(false);
-    }
+    const payload = {
+      name: name.trim(),
+      phone: phone.trim(),
+      subject_id: allowedSubjects ? findSubjectId(allowedSubjects, subject) : undefined,
+      message: message ?? "Заявка ученика",
+    };
+
+    setSubmitting(false);
+    setShowSuccess(true);
+    setName("");
+    setPhone(PHONE_PREFIX);
+    setSubject(defaultSubject);
+
+    void submitLeadRequest(payload).catch((err) => {
+      console.error("Lead request failed", err);
+    });
   };
 
   return (
@@ -143,8 +139,23 @@ export function BookingForm({
         )}
       </div>
 
+      {feedback && (
+        <div
+          style={{
+            gridColumn: "1 / -1",
+            padding: "8px 12px",
+            borderRadius: 8,
+            fontSize: 14,
+            background: feedback.type === "success" ? "#EAF3DE" : "#FCEBEB",
+            color: feedback.type === "success" ? "#3B6D11" : "#A32D2D",
+          }}
+        >
+          {feedback.text}
+        </div>
+      )}
+
       <button type="submit" className="banner-form-btn" disabled={submitting}>
-        {submitting ? "Отправка…" : submitLabel}
+        {submitLabel}
       </button>
 
       <SuccessPopup visible={showSuccess} onClose={() => setShowSuccess(false)} />

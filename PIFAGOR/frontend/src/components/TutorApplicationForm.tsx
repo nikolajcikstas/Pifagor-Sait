@@ -3,7 +3,7 @@ import { submitLeadRequest } from "../api/public";
 import type { ApiSubject } from "../api/types";
 import { findSubjectId } from "../utils/tutors";
 import { filterAllowedSubjects, getSubjectOptionNames } from "../utils/subjects";
-import { formatPhone, isPhoneValid } from "../utils/phone";
+import { PHONE_PREFIX, formatPhone, isPhoneValid } from "../utils/phone";
 import { SuccessPopup } from "./SuccessPopup";
 
 interface TutorApplicationFormProps {
@@ -12,16 +12,13 @@ interface TutorApplicationFormProps {
 
 export function TutorApplicationForm({ subjects }: TutorApplicationFormProps) {
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("+375");
+  const [phone, setPhone] = useState(PHONE_PREFIX);
   const [subject, setSubject] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isValidationError, setIsValidationError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(
-    null,
-  );
 
   const allowedSubjects = useMemo(
     () => (subjects?.length ? filterAllowedSubjects(subjects) : undefined),
@@ -33,54 +30,34 @@ export function TutorApplicationForm({ subjects }: TutorApplicationFormProps) {
     [allowedSubjects],
   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    // ВАЖНО: preventDefault должен быть САМОЙ первой строчкой,
-    // чтобы страница не перезагрузилась, даже если код ниже упадет с ошибкой!
-        e.preventDefault();
-    if (setFeedback) setFeedback(null);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
 
-    // Проверяем заполнение полей
-    if (!name.trim()) {
+    if (!name.trim() || !isPhoneValid(phone)) {
       setIsValidationError(true);
       setTimeout(() => setIsValidationError(false), 2000);
       return;
     }
 
-    if (!isPhoneValid(phone)) {
-      setIsValidationError(true);
-      setTimeout(() => setIsValidationError(false), 2000);
-      return;
-    }
+    const payload = {
+      name: name.trim(),
+      phone: phone.trim(),
+      subject_id: allowedSubjects ? findSubjectId(allowedSubjects, subject) : undefined,
+      message: "Заявка репетитора",
+    };
 
+    setSubmitting(false);
+    setShowSuccess(true);
+    setIsSuccess(true);
+    setName("");
+    setPhone(PHONE_PREFIX);
+    setSubject("");
 
-    setSubmitting(true);
-    try {
-      await submitLeadRequest({
-        name: name.trim(),
-        phone: phone.trim(),
-        subject_id: allowedSubjects ? findSubjectId(allowedSubjects, subject) : undefined,
-        message: "Заявка репетитора",
-      });
+    setTimeout(() => setIsSuccess(false), 3000);
 
-      setShowSuccess(true);
-      setIsSuccess(true);
-
-      setName("");
-      setPhone("+375");
-      setSubject("");
-
-      setTimeout(() => setIsSuccess(false), 3000);
-    } catch (err) {
-      // Чтобы код не падал, выводим ошибку в alert, если feedback не настроен
-      const errorMessage = err instanceof Error ? err.message : "Не удалось отправить заявку";
-      if (setFeedback) {
-        setFeedback({ type: "error", text: errorMessage });
-      } else {
-        alert(errorMessage);
-      }
-    } finally {
-      setSubmitting(false);
-    }
+    void submitLeadRequest(payload).catch((err) => {
+      console.error("Tutor request failed", err);
+    });
   };
 
   return (
@@ -106,7 +83,7 @@ export function TutorApplicationForm({ subjects }: TutorApplicationFormProps) {
         placeholder="+375 (XX) XXX-XX-XX"
         value={phone}
         onChange={(e) => setPhone(formatPhone(e.target.value))}
-        className="tutors-page-cta__input"
+        className="tutors-page-cta__input tutors-page-cta__input--phone"
         disabled={submitting}
       />
 
@@ -150,19 +127,18 @@ export function TutorApplicationForm({ subjects }: TutorApplicationFormProps) {
       </div>
 
       <button
-          type="submit"
-          className="tutors-page-cta__btn"
-          disabled={submitting || isSuccess || isValidationError}
-          style={{
-            background: isValidationError ? "#D32F2F" : isSuccess ? "#4CAF50" : undefined,
-            color: isValidationError || isSuccess ? "#ffffff" : undefined,
-            transition: "background 0.3s ease, color 0.3s ease"
-          }}
-        >
-          {submitting && "Отправка…"}
-          {!submitting && isValidationError && "Заполните поля! ⚠"}
-          {!submitting && !isValidationError && isSuccess && "Отправлено! ✓"}
-          {!submitting && !isValidationError && !isSuccess && "Отправить"}
+        type="submit"
+        className="tutors-page-cta__btn"
+        disabled={submitting || isSuccess || isValidationError}
+        style={{
+          background: isValidationError ? "#D32F2F" : isSuccess ? "#4CAF50" : undefined,
+          color: isValidationError || isSuccess ? "#ffffff" : undefined,
+          transition: "background 0.3s ease, color 0.3s ease",
+        }}
+      >
+        {isValidationError && "Заполните поля! ⚠"}
+        {!isValidationError && isSuccess && "Отправлено! ✓"}
+        {!isValidationError && !isSuccess && "Отправить"}
       </button>
 
       <SuccessPopup visible={showSuccess} onClose={() => setShowSuccess(false)} />

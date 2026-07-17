@@ -47,9 +47,9 @@ async def seed():
 
         # Prices
         prices = [
-            Price(title="1 занятие", price_per_lesson=1500, lessons_in_package=1),
-            Price(title="8 занятий", price_per_lesson=1350, lessons_in_package=8, discount_percent=10),
-            Price(title="16 занятий", price_per_lesson=1200, lessons_in_package=16, discount_percent=20),
+            Price(title="1 занятие", price_per_lesson=40, lessons_in_package=1),
+            Price(title="8 занятий", price_per_lesson=40, lessons_in_package=8, discount_percent=0),
+            Price(title="16 занятий", price_per_lesson=40, lessons_in_package=16, discount_percent=0),
         ]
         for p in prices:
             db.add(p)
@@ -85,7 +85,7 @@ async def seed():
             bio="Опытный преподаватель математики и физики. Готовлю к ОГЭ и ЕГЭ.",
             education="МГУ, механико-математический факультет",
             experience_years=7,
-            rate_per_hour=1500,
+            rate_per_hour=40,
             is_published=True,
         )
         db.add(tutor_profile)

@@ -14,6 +14,8 @@ interface TutorCardProps {
 }
 
 export function TutorCard({ tutor }: TutorCardProps) {
+  const shouldLowerPhoto = tutor.name.includes("Рапчинский");
+
   return (
     <div
       className="tutors-page-card"
@@ -29,7 +31,13 @@ export function TutorCard({ tutor }: TutorCardProps) {
         <img
           src={tutor.image || alexeyPetrovImg}
           alt={tutor.name}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            display: 'block',
+            transform: shouldLowerPhoto ? 'translateY(14px) scale(1.04)' : undefined,
+          }}
         />
       </div>
 
@@ -52,7 +60,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
             <span style={{ flexShrink: 0, width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#E0F2FE', color: '#0369A1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px', marginTop: '2px' }}>
               ✓
             </span>
-            <p className="text-h3" style={{ margin: 0, fontSize: '17px', color: '#374151', lineHeight: '1.5' }}>
+            <p className="text-h3" style={{ margin: 0, fontSize: '18px', color: '#374151', lineHeight: '1.5' }}>
               {tutor.university}
             </p>
           </div>
@@ -63,7 +71,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
             <span style={{ flexShrink: 0, width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#E0F2FE', color: '#0369A1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px', marginTop: '2px' }}>
               ✓
             </span>
-            <p className="text-h3" style={{ margin: 0, fontSize: '17px', color: '#374151', lineHeight: '1.5' }}>
+            <p className="text-h3" style={{ margin: 0, fontSize: '18px', color: '#374151', lineHeight: '1.5' }}>
               {tutor.approach}
             </p>
           </div>
@@ -74,7 +82,7 @@ export function TutorCard({ tutor }: TutorCardProps) {
             <span style={{ flexShrink: 0, width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#E0F2FE', color: '#0369A1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px', marginTop: '2px' }}>
               ✓
             </span>
-            <p className="text-h3" style={{ margin: 0, fontSize: '17px', color: '#374151', lineHeight: '1.5' }}>
+            <p className="text-h3" style={{ margin: 0, fontSize: '18px', color: '#374151', lineHeight: '1.5' }}>
               {tutor.caseStudy}
             </p>
           </div>

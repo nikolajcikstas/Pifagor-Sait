@@ -446,6 +446,11 @@
   box-sizing: border-box !important;
 }
 
+.tutors-page-cta__input--phone {
+  flex-basis: 245px !important;
+  min-width: 245px !important;
+}
+
 /* Кастомный селект */
 .tutors-page-cta__select-wrapper {
   flex: 1 1 180px !important;

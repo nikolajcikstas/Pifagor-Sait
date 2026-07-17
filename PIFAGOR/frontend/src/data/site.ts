@@ -72,8 +72,8 @@ export const PRICING_FEATURES = [
 export const REVIEW_IMAGES = [review1, review2, review3, review4];
 
 export const CONTACT = {
-  phone: "+375447933870",
-  phoneDisplay: "+375 44 793 38 70",
+  phone: "+375447932870",
+  phoneDisplay: "+375 44 793 28 70",
   email: "pifagor.by@gmail.com",
 };
 
@@ -81,7 +81,7 @@ export const SOCIAL_LINKS = {
   instagram:
     "https://www.instagram.com/pifagor.by?igsh=ZWt6em94N2t4NGsz&utm_source=qr",
   telegram: "https://t.me/nikstasss",
-  viber: "viber://chat?number=%2B375447933870",
+  viber: "viber://chat?number=%2B375447932870",
 };
 
 export const ANCHORS = {
